@@ -1,11 +1,12 @@
 
-""" This is Question 1.0.1 of the coursework."""
 import os
 import sys
 import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import enum
+
 
 spikes = np.loadtxt('neuron_A.csv', delimiter=',')
 trial_IDs = np.loadtxt('trial_ID.csv', delimiter=',')
@@ -24,18 +25,6 @@ def get_cv(interspike_intervals):
     isi_std = np.std(interspike_intervals)
     cv = isi_std/isi_mean
     return cv
-
-def spike_count_variance():
-    return
-
-def spike_count_histogram(stimulus_on_SCs,stimulus_off_SCs):
-    bins = 25
-    plt.hist(stimulus_on_SCs,bins,alpha=0.5)
-    plt.hist(stimulus_off_SCs,bins,alpha=0.5)
-    plt.xlabel('Spike count')
-    plt.ylabel('Trials')
-    plt.show()
-    return
 
 def get_spike_counts(trials):
     spike_counts = []
@@ -93,11 +82,53 @@ def seperate_trials_by_stimulus(trials,trial_IDs):
 
     return stimulus_trials, no_stimulus_trials
 
+def spike_count_histogram(stimulus_on_SCs,stimulus_off_SCs):
+    bins = 25
+    plt.hist(stimulus_on_SCs,bins,alpha=0.5)
+    plt.hist(stimulus_off_SCs,bins,alpha=0.5)
+    plt.xlabel('Spike count')
+    plt.ylabel('Trials')
+    plt.show()
+    return
+
 def decoder(single_spike_count,decision_boundary):
     if(single_spike_count>=decision_boundary):
         return 1
     else:
         return 0
+
+def decoder_check(trial,trial_ID,decision_boundary):
+        prediction = decoder(len(trial),decision_boundary)
+        if (trial_ID ==1 and prediction ==1):
+            return "TP"
+        elif(trial_ID==0 and prediction ==0):
+            return "TN"
+        elif (trial_ID ==0 and prediction ==1):
+            return "FP"
+        elif (trial_ID ==1 and prediction ==0):
+            return "FN"
+        else:
+            return "ERROR not zero or one"
+
+def run_decoder_check(trials,trial_IDs):
+
+    for i in range(0,41):
+        true_positives = 0
+        true_negatives = 0
+        total_correct = 0
+        for t in range(0,len(trials)):
+            check = decoder_check(trials[t],trial_IDs[t])
+            print(check)
+            if (check == "TP"):
+                true_positives+=1
+                total_correct+=1
+            elif(check == "TN"):
+                true_negatives+=1
+                total_correct+=1
+                
+    return
+
+
 
 def question_1(spikes,trial_IDs):
     return
@@ -126,7 +157,7 @@ stimulus_off_intervals = get_intervals_by_trials(stimulus_off_trials)
 stimulus_off_cv = get_cv(stimulus_off_intervals)
 
 
-
+print(R.TP+1)
 print("coefficient_of_variation:",cv)
 print("cv with stimulus", stimulus_on_cv)
 print("cv with no stimulus", stimulus_off_cv)
