@@ -17,6 +17,7 @@ def get_fano_factor(sc_var,sc_mean):
 def get_cv(interspike_intervals):
     #Standard deviation of interspike interval divided by the mean of the interspike interval
     isi_mean = np.mean(interspike_intervals)
+    print("mean ",isi_mean)
     isi_std = np.std(interspike_intervals)
     cv = isi_std/isi_mean
     return cv
@@ -36,9 +37,9 @@ def get_interspike_intervals(spikes):
 
 def get_intervals_by_trials(trials):
     total_intervals =[]
-    for trial in stimulus_trials:
+    for trial in trials:
         intervals = get_interspike_intervals(trial)
-        total_intervals = numpy.concatenate((total_intervals,intervals))
+        total_intervals = np.concatenate((total_intervals,intervals))
     return total_intervals
 
 def get_trial_spikes(spikes,trial_number,offset):
@@ -77,8 +78,15 @@ def seperate_trials_by_stimulus(trials,trial_IDs):
 
     return stimulus_trials, no_stimulus_trials
 
+def decoder(single_spike_count,decision_boundary):
+    if(single_spike_count>=decision_boundary):
+        return 1
+    else:
+        return 0
 
-def question_1():
+def question_1(spikes,trial_IDs):
+    return
+def question_2(spikes,trial_IDs):
     return
 
 trials = separate_spikes_by_trial(spikes,trial_IDs)
@@ -90,9 +98,6 @@ stimulus_intervals = get_intervals_by_trials(stimulus_trials)
 stimulus_cv = get_cv(stimulus_intervals)
 no_stimulus_intervals = get_intervals_by_trials(no_stimulus_trials)
 no_stimulus_cv = get_cv(no_stimulus_intervals)
-
-
-
 
 print("coefficient_of_variation:",cv)
 print("cv with stimulus", stimulus_cv)
