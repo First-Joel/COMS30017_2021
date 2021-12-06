@@ -5,11 +5,14 @@ import sys
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 spikes = np.loadtxt('neuron_A.csv', delimiter=',')
 trial_IDs = np.loadtxt('trial_ID.csv', delimiter=',')
 
-def get_fano_factor(sc_var,sc_mean):
+def get_fano_factor(spike_counts):
+    sc_var = np.var(spike_counts)
+    sc_mean = np.mean(spike_counts)
     #Variance of spike count divided by the mean of the spike count  NOT INTERSPIKE INTERVALS
     f = sc_var/sc_mean
     return f
@@ -25,8 +28,20 @@ def get_cv(interspike_intervals):
 def spike_count_variance():
     return
 
-def spike_count_mean(spike_counts):
+def spike_count_histogram(stimulus_on_SCs,stimulus_off_SCs):
+    bins = 25
+    plt.hist(stimulus_on_SCs,bins,alpha=0.5)
+    plt.hist(stimulus_off_SCs,bins,alpha=0.5)
+    plt.xlabel('Spike count')
+    plt.ylabel('Trials')
+    plt.show()
     return
+
+def get_spike_counts(trials):
+    spike_counts = []
+    for trial in trials:
+        spike_counts.append(len(trial))
+    return spike_counts
 
 def get_interspike_intervals(spikes):
     interspike_intervals =[]
@@ -42,10 +57,10 @@ def get_intervals_by_trials(trials):
         total_intervals = np.concatenate((total_intervals,intervals))
     return total_intervals
 
-def get_trial_spikes(spikes,trial_number,offset):
+def get_trial_spikes(spikes,trial_number,offset,bin_size):
     trial_spikes = []
-    min = (trial_number-1)*1000
-    max = min + 1000
+    min = (trial_number-1)*bin_size
+    max = min + bin_size
     if spikes[offset]<min:
         print("Error: first spike is smaller than trial")
     while spikes[offset]<max:
@@ -56,11 +71,11 @@ def get_trial_spikes(spikes,trial_number,offset):
 
     return trial_spikes , offset
 
-def separate_spikes_by_trial(spikes,trial_IDs):
+def separate_spikes_by_bin_size(spikes,bin_size):
     offset = 0
     trials = []
-    for i in range(1,(1+len(trial_IDs))):
-        trial_i, offset = get_trial_spikes(spikes,i,offset)
+    for i in range(1,1+(math.ceil(spikes[-1]/bin_size))):
+        trial_i, offset = get_trial_spikes(spikes,i,offset,bin_size)
         trials.append(trial_i)
     return trials
 
@@ -89,16 +104,29 @@ def question_1(spikes,trial_IDs):
 def question_2(spikes,trial_IDs):
     return
 
-trials = separate_spikes_by_trial(spikes,trial_IDs)
-stimulus_trials, no_stimulus_trials = seperate_trials_by_stimulus(trials,trial_IDs)
+for i in [100,200,500,1000,2000]:
+    f = get_fano_factor(get_spike_counts(separate_spikes_by_bin_size(spikes,i)))
+    print("F",i,":  ",f)
+
+
+trials = separate_spikes_by_bin_size(spikes,1000)
+spike_counts= get_spike_counts(trials)
+stimulus_on_trials, stimulus_off_trials = seperate_trials_by_stimulus(trials,trial_IDs)
+stimulus_on_SCs =get_spike_counts(stimulus_on_trials)
+stimulus_off_SCs = get_spike_counts(stimulus_off_trials)
+
+spike_count_histogram(stimulus_on_SCs,stimulus_off_SCs)
+
 interspike_intervals = get_interspike_intervals(spikes)
 cv = get_cv(interspike_intervals)
 
-stimulus_intervals = get_intervals_by_trials(stimulus_trials)
-stimulus_cv = get_cv(stimulus_intervals)
-no_stimulus_intervals = get_intervals_by_trials(no_stimulus_trials)
-no_stimulus_cv = get_cv(no_stimulus_intervals)
+stimulus_on_intervals = get_intervals_by_trials(stimulus_on_trials)
+stimulus_on_cv = get_cv(stimulus_on_intervals)
+stimulus_off_intervals = get_intervals_by_trials(stimulus_off_trials)
+stimulus_off_cv = get_cv(stimulus_off_intervals)
+
+
 
 print("coefficient_of_variation:",cv)
-print("cv with stimulus", stimulus_cv)
-print("cv with no stimulus", no_stimulus_cv)
+print("cv with stimulus", stimulus_on_cv)
+print("cv with no stimulus", stimulus_off_cv)
