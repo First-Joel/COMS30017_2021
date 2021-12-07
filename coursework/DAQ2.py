@@ -70,15 +70,21 @@ def mix_image(A,B,prob):
 
 w_matrix = weight_matrix(train_t,3)
 
-mixed_image = mix_image(train_ps[0],train_ps[1],0.95)
-plt.imshow(np.reshape(mixed_image,(28,28)))
-plt.show()
-
 test1 = test_ps[0]
 test2 = test_ps[1]
 
+probs = np.linspace(0,1,11)
+energies = np.zeros(len(probs))
+for p in range(0,len(probs)):
+    mixed_image = mix_image(train_ps[0],train_ps[1],probs[p])
+    energies[p] = energy_formula(mixed_image,w_matrix)
+print(probs)
 
-"""plt.imshow(np.reshape(test1,(28,28)))
+plt.plot(probs,energies)
+plt.show()
+
+
+plt.imshow(np.reshape(test1,(28,28)))
 plt.show()
 print("energy",energy_formula(test1,w_matrix))
 test1 = evolve_xs(test1,w_matrix,1000,0)
@@ -100,4 +106,4 @@ plt.show()
 test2 = evolve_xs(test2,w_matrix,2000,0)
 print("energy",energy_formula(test2,w_matrix))
 plt.imshow(np.reshape(test2,(28,28)))
-plt.show()"""
+plt.show()
