@@ -73,6 +73,9 @@ w_matrix = weight_matrix(train_t,3)
 test1 = test_ps[0]
 test2 = test_ps[1]
 
+mixed_image = mix_image(train_ps[0],train_ps[1],probs[0.1])
+plt.imshow(np.reshape(mixed_image,(28,28)))
+
 probs = np.linspace(0,1,11)
 energies = np.zeros(len(probs))
 for p in range(0,len(probs)):
